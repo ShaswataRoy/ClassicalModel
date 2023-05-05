@@ -1,0 +1,44 @@
+#!/bin/sh -l
+# FILENAME:  script_SGCNN
+
+#SBATCH -A cis220051-gpu
+#SBATCH --nodes=1             # Total # of nodes 
+#SBATCH --ntasks-per-node=1   # Number of MPI ranks per node (one rank per GPU)
+#SBATCH --gpus-per-node=1     # Number of GPUs per node
+#SBATCH --time=47:30:00        # Total run time limit (hh:mm:ss)
+#SBATCH -J train          # Job name
+#SBATCH -o train.o          # Name of stdout output file
+#SBATCH -e train.e         # +Name of stderr error file
+#SBATCH -p gpu  
+
+
+module purge # Unload all loaded modules and reset everything to original state.
+module load python
+module load anaconda
+conda activate sgcnn
+
+# Run file
+
+timestamp=$(date +%b_%d_%y_%H_%M_%s)
+experiment_name="pdbbind_2016_general_refined"
+
+python test.py
+#python SGCNN/train.py --checkpoint-dir=SGCNN/result_new --num-workers=8 --batch-size=8 --preprocessing-type=processed --feature-type=pybel --epochs=200 --lr=1e-3 --covalent-threshold=1.5 --non-covalent-threshold=4.5 --covalent-gather-width=16 --covalent-k=2 --non-covalent-gather-width=12 --non-covalent-k=2 --checkpoint=True --checkpoint-iter=100 --train-data ~/tdm/Roy/datamine-2022/results/processed/general_train.hdf ~/tdm/Roy/datamine-2022/results/processed/refined_train.hdf --val-data ~/tdm/Roy/datamine-2022/results/processed/general_val.hdf ~/tdm/Roy/datamine-2022/results/processed/refined_val.hdf --dataset-name pdbbind
+
+
+#csv_list = []
+ 
+for file in csv_files:
+    csv_list.append(pd.read_csv(file))
+csv_merged_1 = pd.concat(csv_list[:2], ignore_index=True)
+csv_merged_2 = pd.concat(csv_list[4:7], ignore_index=True)
+csv_merged = pd.concat([csv_merged_1,csv_merged_2], ignore_index=True)
+csv_merged.to_csv('pdbbind2016_info.csv', index=False)
+
+# Script for Training
+python SGCNN/train.py --checkpoint-dir=SGCNN/result_refined --num-workers=8 --batch-size=8 --preprocessing-type=processed --feature-type=pybel --epochs=200 --lr=1e-3 --covalent-threshold=1.5 --non-covalent-threshold=4.5 --covalent-gather-width=16 --covalent-k=2 --non-covalent-gather-width=12 --non-covalent-k=2 --checkpoint=True --checkpoint-iter=100 --train-data ~/tdm/Roy/datamine-2022/results/processed/refined_train.hdf --val-data ~/tdm/Roy/datamine-2022/results/processed/refined_val.hdf --dataset-name pdbbind
+
+# Script for testing
+
+#python SGCNN/test.py --checkpoint ~/tdm/Roy/datamine-2022/SGCNN/result_new/best_checkpoint.pth --num-workers=8 --batch-size=8 --preprocessing-type=processed --feature-type=pybel  --test-data ~/tdm/Roy/datamine-2022/pdbbind2016_core_test.hdf --dataset-name pdbbind --output ~/tdm/Roy/datamine-2022/SGCNN/test --output-file-name core_test_SGCNN.hdf
+
