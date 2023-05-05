@@ -1,0 +1,67 @@
+Bootstrap: docker
+From: debian:bullseye
+%post
+    apt-get -y update
+
+    apt-get -y install python3.10
+    apt-get -y install python3-pip
+    
+    apt-get -y install unzip libncurses5-dev libgdbm-dev libnss3-dev \
+    libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl 
+    apt-get -y install --no-install-recommends  build-essential  ca-certificates  cmake \
+    git  zlib1g-dev  libcairo2-dev  libboost-dev  libboost-program-options-dev  libboost-iostreams-dev  libboost-regex-dev \
+    rapidjson-dev  python3-dev  libbz2-dev  libeigen3-dev  libxml2-dev  lzma  wget 
+    apt-get clean -y
+    
+    apt-get -y install --no-install-recommends swig libopenbabel-dev
+    ln -s /usr/include/openbabel3 /usr/local/include/openbabel3
+
+    pip3 install torch --extra-index-url https://download.pytorch.org/whl/cpu
+    pip3 install torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+    pip3 install torchvision --extra-index-url https://download.pytorch.org/whl/cpu
+
+    pip3 install setuptools numpy pandas random2 h5py argparse python-csv  rdkit-pypi xml-python glob2 tqdm openbabel\
+    pybel mdms pillow jupyterlab torch-geometric torch-scatter torch-sparse
+
+    # Installing Chimera
+    tmp_dir=/tmp/$$_installer
+    echo "Creating temp directory ${tmp_dir}"
+    mkdir ${tmp_dir}
+    cd ${tmp_dir}
+
+    # Download the source, which comes as a zip.
+    DOWNLOAD_LINK="https://www.cgl.ucsf.edu$(curl -X POST -d "choice=Accept&file=linux_x86_64_osmesa%2Fchimera-1.16-linux_x86_64_osmesa.bin" -X POST https://www.cgl.ucsf.edu/chimera/cgi-bin/secure/chimera-get.py | grep "href=\"/chimera" | sed 's/.*"\(.*\)".*/\1/')"
+    echo "Downloading: ${DOWNLOAD_LINK}"
+    curl ${DOWNLOAD_LINK} --output source.zip
+
+    # Unzip the source and run installer.
+    unzip source.zip
+    ./chimera.bin -q -d /opt/chimera
+    ln -s /opt/chimera/bin/chimera /usr/local/bin
+
+    cd /
+    rm -rf ${tmp_dir}
+
+    ###
+    # Installing tfbio
+    # More info: https://gitlab.com/cheminfIBB/tfbio
+    ###
+
+    # Do all of this in the tmp folder.
+    tmp_dir=/tmp/$$_installer
+    echo "Creating temp directory ${tmp_dir}"
+    mkdir ${tmp_dir}
+    cd ${tmp_dir}
+
+    # Download the source, which comes as a zip.
+    DOWNLOAD_LINK="https://gitlab.com/cheminfIBB/tfbio/-/archive/master/tfbio-master.zip"
+    echo "Downloading: ${DOWNLOAD_LINK}"
+    curl ${DOWNLOAD_LINK} --output source.zip
+
+    # Unzip the source and run installer.
+    unzip source.zip
+    cd tfbio-master
+    python3 setup.py install
+
+    cd /
+    rm -rf ${tmp_dir}
