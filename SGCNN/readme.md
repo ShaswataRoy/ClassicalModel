@@ -2,8 +2,7 @@
 
 ## Create a python environment using the following instructions
 
-1. Instantiate a gpu machine on avil## make sure you have conda for creating env
-
+1. Instantiate a gpu machine on avil## make sure you have conda for creating env<br>
 $ module load anaconda
 
 2. Create an env called `sgcnn`
