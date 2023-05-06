@@ -20,4 +20,5 @@ $ conda install os pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -
 ## Run the Code
 
 1. Create and enter a python environment named 3dcnn with all required packages
+2. Create a folder ouputs_classic which will store all results from this model
 2. Run job.sh on the cluster. Feel free to change the cluster parameters
