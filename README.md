@@ -1,4 +1,4 @@
-# Paper
+# Classical Model
 Ingenii Paper Classical Model
 
 We will be using the PDBBind 2016 dataset to train our model. Proceed in the following direction:
